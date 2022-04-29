@@ -1,0 +1,10 @@
+
+1- Run DBScript File 
+	-- Create Database and Tables
+	-- Insert data in tables
+
+2- Run the project 
+	-- Register as HR Admin Or HR
+	-- Or Use the data inserted for login
+
+3- login as HR Or HR Admin for Manage the data

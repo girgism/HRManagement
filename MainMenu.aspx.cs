@@ -1,0 +1,96 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Raya_T.Data;
+
+namespace Raya_T
+{
+    public partial class MainMenu : System.Web.UI.Page
+    {
+        RayaDBEntitiess context = new RayaDBEntitiess();
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (Response.Cookies.Get("username") != null)
+            {
+
+                var HRData = from c in context.R_HR
+                             select new { c.ID, c.FirstName, c.LastName, c.Age, c.HireDate, c.State };
+
+                grdEmp.DataSource = HRData.ToList();
+                grdEmp.DataBind();
+            }
+
+            else
+            {
+                Response.Redirect("LoginIN.aspx");
+            }
+
+        }
+
+        protected void grdEmp_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.Header)
+            {
+                e.Row.Cells[2].Text = "HR ID";
+                e.Row.Cells[3].Text = "First Name";
+                e.Row.Cells[4].Text = "Last Name";
+                e.Row.Cells[5].Text = "Age";
+                e.Row.Cells[6].Text = "HireDate";
+                e.Row.Cells[7].Text = "State";
+            }
+        }
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (txtSearch.Text == "")
+            {
+                grdEmp.DataSource = context.R_HR.ToList();
+                grdEmp.DataBind();
+            }
+
+            else
+            {
+                var HR = context.R_HR.Where(c => c.FirstName == txtSearch.Text).ToList();
+                grdEmp.DataSource = HR;
+                grdEmp.DataBind();
+            }
+
+        }
+
+        protected void grdEmp_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        {
+            dvSearch.Visible = false;
+
+            lblname.Text = grdEmp.Rows[e.RowIndex].Cells[4].Text +
+                " " + grdEmp.Rows[e.RowIndex].Cells[5].Text;
+
+            hfDelete.Value = grdEmp.Rows[e.RowIndex].Cells[3].Text;
+
+            MultiView1.ActiveViewIndex = 1;
+        }
+
+        protected void btnCancel_Click(object sender, EventArgs e)
+        {
+            MultiView1.ActiveViewIndex = 0;
+        }
+
+        protected void btnDelete_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(hfDelete.Value);
+            var HRDate = context.R_HR.FirstOrDefault(r => r.ID == id);
+            if (HRDate != null)
+            {
+                context.R_HR.Remove(HRDate);
+                context.SaveChanges();
+
+                Response.Redirect("HRMainMenu.aspx");
+                MultiView1.ActiveViewIndex = 0;
+            }
+
+        }
+
+    }
+}
